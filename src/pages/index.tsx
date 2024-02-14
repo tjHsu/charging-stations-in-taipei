@@ -1,16 +1,25 @@
 import React, { useState, useEffect } from "react";
 import { STATIONS } from "../constants/Stations";
 import { Bars3BottomLeftIcon } from "@heroicons/react/24/outline";
-import { useRouter } from 'next/router'
+import { useRouter } from "next/router";
+import flexsearch from "flexsearch";
 
-const { Index, Document, Worker } = require("flexsearch");
-const options = {
+
+
+// Create a flexsearch index, and add items to it.
+const index = new flexsearch.Index({
   charset: "utf-8",
   preset: "match",
   tokenize: "full",
   cache: false,
-};
-const index = new Index(options);
+});
+
+STATIONS.map((station) => {
+  index.add(
+    station.id,
+    station.district + " " + station.name + " " + station.address,
+  );
+});
 
 type TableItem = {
   id: string;
@@ -21,10 +30,10 @@ type TableItem = {
 };
 
 const StationsTable: React.FC = () => {
-  const router = useRouter()
-  
-  const { pageSize } = router.query
-  const itemsPerPage = pageSize ? Number(pageSize) : 5 
+  const router = useRouter();
+
+  const { pageSize } = router.query;
+  const itemsPerPage = pageSize ? Number(pageSize) : 5;
 
   const [resultStationIds, setresultStationIds] = useState<string[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
@@ -51,13 +60,6 @@ const StationsTable: React.FC = () => {
       setStations(STATIONS);
     }
   }, [hasSearched]);
-
-  STATIONS.map((station) => {
-    index.add(
-      station.id,
-      station.district + " " + station.name + " " + station.address,
-    );
-  });
 
   const handleSort = (key: string) => {
     const sortedData = [...stations];
@@ -103,10 +105,10 @@ const StationsTable: React.FC = () => {
         <input
           type="text"
           placeholder={"search"}
-          className="focus:ring-primarybg block w-full min-w-0 my-2 flex-1 rounded-none rounded-r-md border-0 px-1.5 py-1.5  text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6"
+          className="focus:ring-primarybg my-2 block w-full min-w-0 flex-1 rounded-none rounded-r-md border-0 px-1.5 py-1.5  text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6"
           onKeyDown={(e) => {
             if (e.key === "Enter") {
-              const ids = index.search(e.currentTarget.value);
+              const ids = index.search(e.currentTarget.value) as string[];
               setHasSearched(true);
               setresultStationIds(ids);
               if (!e.currentTarget.value) setHasSearched(false);
@@ -115,7 +117,7 @@ const StationsTable: React.FC = () => {
         />
       </div>
       {/* Pagination buttons */}
-      <div className="flex my-2">
+      <div className="my-2 flex">
         <button
           disabled={currentPage === 1}
           onClick={() => handlePageChange(currentPage - 1)}
