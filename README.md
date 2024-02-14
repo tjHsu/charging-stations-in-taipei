@@ -1,6 +1,10 @@
 # Charging Stations List
 
-If you want to start a charging stations list website for your local community, this is all you need. This is an open-source project with basic charging stations list functionality. 
+If you want to start a charging stations list website for your local community, this is all you need. This is an open-source project with basic charging stations list functionality.
+
+
+## Demo
+A live demo can be found [here](https://charging-stations-in-taipei.vercel.app/).
 
 ## Deployment
 
